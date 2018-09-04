@@ -17,7 +17,8 @@ defmodule LoggerJSON.EctoTest do
       query_time: 2100 * diff,
       decode_time: 500 * diff,
       queue_time: 100 * diff,
-      source: "test"
+      source: "test",
+      connection_pid: inspect(self())
     }
 
     %{log_entry: entry}
@@ -32,17 +33,23 @@ defmodule LoggerJSON.EctoTest do
         Logger.flush()
       end)
 
+    pid = entry.connection_pid
+
     %{
       "jsonPayload" => %{
         "message" => "done",
         "metadata" => %{
-          "application" => "logger_json",
-          "connection_pid" => nil,
           "decode_time" => 0.5,
           "duration" => 2.7,
           "query_time" => 2.1,
-          "queue_time" => 0.1
+          "queue_time" => 0.1,
+          "connection_pid" => ^pid
         }
+      },
+      "labels" => %{
+        "application_name" => "logger_json",
+        "application_version" => "1.2.1",
+        "type" => "elixir-application"
       }
     } = Jason.decode!(log)
   end
@@ -56,12 +63,13 @@ defmodule LoggerJSON.EctoTest do
         Logger.flush()
       end)
 
+    pid = entry.connection_pid
+
     %{
       "jsonPayload" => %{
         "message" => "done",
         "metadata" => %{
-          "application" => "logger_json",
-          "connection_pid" => nil,
+          "connection_pid" => ^pid,
           "decode_time" => 0.5,
           "duration" => 2.7,
           "query_time" => 2.1,
